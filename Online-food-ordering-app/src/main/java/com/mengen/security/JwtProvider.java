@@ -4,22 +4,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.jsonwebtoken.SignatureAlgorithm.HS512;
-
+@Service
 public class JwtProvider {
 
-    private SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes();
+    private SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes());
 
     public String generateToken(Authentication auth) {
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();

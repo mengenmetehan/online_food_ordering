@@ -1,4 +1,7 @@
 package com.mengen.repository;
 
-public interface CartRepository {
+import com.mengen.model.Cart;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CartRepository extends JpaRepository<Cart, Long> {
 }

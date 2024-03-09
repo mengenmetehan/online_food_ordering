@@ -20,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
     @Override
@@ -29,25 +30,25 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String jwt = request.getHeader(JwtConstants.JWT_HEADER);
 
-        if (jwt == null || !jwt.startsWith(JwtConstants.TOKEN_PREFIX)) {
-            throw new ServletException("Missing or invalid jwt token");
-        }
-        jwt = jwt.substring(JwtConstants.TOKEN_PREFIX.length());
+        if (Objects.nonNull(jwt) ) {
 
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes());
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+            jwt = jwt.substring(JwtConstants.TOKEN_PREFIX.length());
 
-            String email = claims.get("email", String.class);
-            String authorities = claims.get("authorities", String.class);
+            try {
+                SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes());
+                Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
 
-            //ROLE_CUSTOMER, ROLE_ADMIN,
-            List<GrantedAuthority> auth = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, auth);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        catch (Exception e) {
-            throw new BadCredentialsException("Missing or invalid jwt token");
+                String email = claims.get("email", String.class);
+                String authorities = claims.get("authorities", String.class);
+
+                //ROLE_CUSTOMER, ROLE_ADMIN,
+                List<GrantedAuthority> auth = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, auth);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            catch (Exception e) {
+                throw new BadCredentialsException("Missing or invalid jwt token");
+            }
         }
 
         filterChain.doFilter(request, response);

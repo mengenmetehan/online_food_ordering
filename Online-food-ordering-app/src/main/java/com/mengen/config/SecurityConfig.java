@@ -53,14 +53,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        /*
-
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                                http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
-         */
-
         return http.build();
     }
 
