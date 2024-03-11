@@ -1,4 +1,4 @@
-package com.mengen.dto;
+package com.mengen.response;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Embeddable
-public class RestaurantDto {
+public class RestaurantDTO {
 
     private String title;
 

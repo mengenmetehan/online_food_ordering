@@ -1,4 +1,4 @@
-package com.mengen.service;
+package com.mengen.service.impl;
 
 import com.mengen.enums.USER_ROLE;
 import com.mengen.model.User;

@@ -46,7 +46,7 @@ public class SecurityConfig {
         http //.exceptionHandling(exp -> exp.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_ADMIN", "ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)

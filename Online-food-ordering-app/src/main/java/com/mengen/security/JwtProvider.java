@@ -10,15 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class JwtProvider {
 
-    private SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes());
+    private final SecretKey key = Keys.hmacShaKeyFor(JwtConstants.SECRET_KEY.getBytes());
 
     public String generateToken(Authentication auth) {
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
@@ -33,11 +30,18 @@ public class JwtProvider {
     }
 
     public String getEmailFromJwtToken(String token) {
+        String jwt = token.substring(JwtConstants.TOKEN_PREFIX.length());
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+
+        return claims.get("email", String.class);
+
+        /*
         Jws<Claims> claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token.substring(JwtConstants.JWT_HEADER.length()));
         return claims.getBody().get("email", String.class);
+         */
     }
 
     private String populateAuthorities(Collection<? extends GrantedAuthority> authorities) {

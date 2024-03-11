@@ -2,11 +2,10 @@ package com.mengen.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,8 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Restaurant {
 
     @Id
@@ -44,7 +45,7 @@ public class Restaurant {
     @Column(length = 1000)
     private List<String> images;
 
-    private LocalDate registrationDate;
+    private LocalDateTime registrationDate;
 
     private boolean open;
 

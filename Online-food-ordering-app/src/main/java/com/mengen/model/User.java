@@ -1,7 +1,8 @@
 package com.mengen.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mengen.dto.RestaurantDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mengen.response.RestaurantDTO;
 import com.mengen.enums.USER_ROLE;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class User {
 
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     private USER_ROLE role = USER_ROLE.ROLE_CUSTOMER;
@@ -34,7 +36,7 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @ElementCollection
-    private List<RestaurantDto> favorites = new ArrayList<>();
+    private List<RestaurantDTO> favorites = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses = new ArrayList<>();

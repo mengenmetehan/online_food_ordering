@@ -5,11 +5,10 @@ import com.mengen.model.Cart;
 import com.mengen.model.User;
 import com.mengen.repository.CartRepository;
 import com.mengen.repository.UserRepository;
-import com.mengen.request.LoginRequest;
-import com.mengen.response.AuthResponse;
+import com.mengen.request.LoginRequestDTO;
+import com.mengen.response.AuthResponseDTO;
 import com.mengen.security.JwtProvider;
-import com.mengen.service.CustomerUserDetailsService;
-import lombok.RequiredArgsConstructor;
+import com.mengen.service.impl.CustomerUserDetailsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -47,11 +46,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
+    public ResponseEntity<AuthResponseDTO> createUserHandler(@RequestBody User user) throws Exception {
         User isEmailExist = userRepository.findByEmail(user.getEmail());
 
         if (Objects.nonNull(isEmailExist))
-            return ResponseEntity.badRequest().body(new AuthResponse(null, "Email already exist", null));
+            return ResponseEntity.badRequest().body(new AuthResponseDTO(null, "Email already exist", null));
 
         User newUser = new User();
         newUser.setFullName(user.getFullName());
@@ -73,33 +72,33 @@ public class AuthController {
 
         String jwt = jwtProvider.generateToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse(jwt, "User created successfully", savedUser.getRole());
+        AuthResponseDTO authResponse = new AuthResponseDTO(jwt, "User created successfully", savedUser.getRole());
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
 
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> loginHandler(@RequestBody LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<AuthResponseDTO> loginHandler(@RequestBody LoginRequestDTO loginRequest) throws Exception {
         Authentication authentication = authenticateUser(loginRequest);
         String jwt = jwtProvider.generateToken(authentication);
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        AuthResponse authResponse = new AuthResponse(jwt, "Login successful",
+        AuthResponseDTO authResponse = new AuthResponseDTO(jwt, "Login successful",
                 USER_ROLE.valueOf( authorities.isEmpty() ? "ROLE_CUSTOMER" : authorities.iterator().next().getAuthority()));
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
-    private Authentication authenticateUser(LoginRequest loginRequest) {
+    private Authentication authenticateUser(LoginRequestDTO loginRequest) {
 
-        UserDetails userDetails = customerUserDetailsService.loadUserByUsername(loginRequest.email());
+        UserDetails userDetails = customerUserDetailsService.loadUserByUsername(loginRequest.getEmail());
 
         if (Objects.isNull(userDetails))
             throw new BadCredentialsException("Pls try again invalid email");
 
-        if (!passwordEncoder.matches(loginRequest.password(), userDetails.getPassword()))
+        if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword()))
             throw new BadCredentialsException("Pls try again invalid password");
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
