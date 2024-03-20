@@ -10,7 +10,7 @@ import java.util.List;
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
 
-    Restaurant findByOwnerId(Long id) throws RestaurantNotFoundException;
+    Restaurant findByOwnerId(Long userId) throws RestaurantNotFoundException;
 
     Restaurant findByOwnerEmail(String email) throws RestaurantNotFoundException;
 

@@ -41,18 +41,16 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Restaurant createRestaurant(RestaurantRequestDTO restaurantDTO, UserRequestDTO userRequestDTO) throws UserNotFoundException {
+    public Restaurant createRestaurant(RestaurantRequestDTO restaurantDTO, User user) {
         Address address = addressRepository.save(restaurantDTO.getAddress());
-        User user;
-        try {
-            user = userService.findUserByEmail(userRequestDTO.getEmail());
-        }
-        catch (Exception e) {
-            throw new UserNotFoundException("User not found with email: " + userRequestDTO.getEmail());
-        }
 
-
-        Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(restaurantDTO.getName());
+        restaurant.setDescription(restaurantDTO.getDescription());
+        restaurant.setCuisineType(restaurantDTO.getCuisineType());
+        restaurant.setContactInformation(restaurantDTO.getContactInformation());
+        restaurant.setImages(restaurantDTO.getImages());
+        restaurant.setOpeningHours(restaurantDTO.getOpeningHours());
         restaurant.setOwner(user);
         restaurant.setRegistrationDate(LocalDateTime.now());
         restaurant.setAddress(address);
@@ -60,31 +58,27 @@ public class RestaurantServiceImpl implements RestaurantService {
         return restaurantRepository.save(restaurant);
     }
 
-    @Override
-    public Restaurant createRestaurant(RestaurantRequestDTO restaurantDTO, User user) throws UserNotFoundException {
-        return createRestaurant(restaurantDTO, modelMapper.map(user, UserRequestDTO.class));
-    }
 
     @Override
-    public RestaurantResponseDTO findByOwnerId(Long id) throws RestaurantNotFoundException {
+    public Restaurant getRestaurantByUserId(Long id) throws RestaurantNotFoundException {
         Restaurant restaurant = restaurantRepository.findByOwnerId(id);
 
         if (Objects.isNull(restaurant))
             throw new RestaurantNotFoundException("Restaurant not found with id: " + id);
 
 
-        return modelMapper.map(restaurant, RestaurantResponseDTO.class);
+        return restaurant;
     }
 
     @Override
-    public RestaurantResponseDTO findByOwnerEmail(String email) throws RestaurantNotFoundException {
+    public Restaurant getRestaurantByEmail(String email) throws RestaurantNotFoundException {
         Restaurant restaurant = restaurantRepository.findByOwnerEmail(email);
 
         if (Objects.isNull(restaurant))
             throw new RestaurantNotFoundException("Restaurant not found with email: " + email);
 
 
-        return modelMapper.map(restaurant, RestaurantResponseDTO.class);
+        return restaurant;
     }
 
 
@@ -92,76 +86,90 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant updateRestaurant(Long id, RestaurantRequestDTO restaurantDTO) throws Exception {
-        RestaurantResponseDTO restaurantById = findRestaurantById(id);
+        Restaurant restaurant = findRestaurantById(id);
 
-        if (Objects.isNull(restaurantById))
+        if (Objects.isNull(restaurant))
             throw new RestaurantNotFoundException("Restaurant not found with id: " + id);
 
-        Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
+        if (restaurant.getCuisineType() != null) {
+            restaurant.setCuisineType(restaurantDTO.getCuisineType());
+        }
+        if (restaurant.getDescription() != null) {
+            restaurant.setDescription(restaurantDTO.getDescription());
+        }
+        if (restaurant.getName() != null) {
+            restaurant.setName(restaurantDTO.getName());
+        }
+
         return restaurantRepository.save(restaurant);
     }
 
     @Override
     public void deleteRestaurant(Long id) throws Exception {
-        RestaurantResponseDTO restaurantById = findRestaurantById(id);
+        Restaurant restaurant = findRestaurantById(id);
 
-        if (Objects.isNull(restaurantById))
-            throw new RestaurantNotFoundException("Restaurant not found with id: " + id);
-
-        restaurantRepository.delete(modelMapper.map(restaurantById, Restaurant.class));
+        restaurantRepository.delete(restaurant);
     }
 
     @Override
-    public List<RestaurantResponseDTO> getAllRestaurants() {
-        return restaurantRepository.findAll().stream()
-                .map(restaurant -> modelMapper.map(restaurant, RestaurantResponseDTO.class))
-                .toList();
+    public List<Restaurant> getAllRestaurants() {
+        return restaurantRepository.findAll();
     }
 
     @Override
-    public List<RestaurantResponseDTO> searchRestaurants(String query) {
-        return restaurantRepository.findBySearchQuery(query).stream()
-                .map(restaurant -> modelMapper.map(restaurant, RestaurantResponseDTO.class))
-                .toList();
+    public List<Restaurant> searchRestaurants(String query) {
+        return restaurantRepository.findBySearchQuery(query);
     }
 
     @Override
-    public RestaurantResponseDTO findRestaurantById(Long id) throws RestaurantNotFoundException {
+    public Restaurant findRestaurantById(Long id) throws RestaurantNotFoundException {
         Optional<Restaurant> restaurant = restaurantRepository.findById(id);
 
         if (restaurant.isEmpty())
             throw new RestaurantNotFoundException("Restaurant not found with id: " + id);
 
-        return modelMapper.map(restaurant.get(), RestaurantResponseDTO.class);
+        return restaurant.get();
     }
 
     @Override
-    public RestaurantResponseDTO addToFavorites(Long id, UserRequestDTO userRequestDTO) throws Exception {
-        RestaurantResponseDTO restaurantById = findRestaurantById(id);
+    public RestaurantDTO addToFavorites(Long id, User user) throws Exception {
+        Restaurant restaurantById = findRestaurantById(id);
+
+        RestaurantDTO restaurantDTO = new RestaurantDTO();
+        restaurantDTO.setDescription(restaurantById.getDescription());
+        restaurantDTO.setTitle(restaurantById.getName());
+        restaurantDTO.setImages(restaurantById.getImages());
+        restaurantDTO.setId(restaurantById.getId());
+
+        boolean isFavorite = false;
+
+        for (RestaurantDTO favorite : user.getFavorites()) {
+            if (favorite.getId().equals(restaurantById.getId())) {
+                isFavorite = true;
+                break;
+            }
+        }
+        if (!isFavorite) {
+            user.getFavorites().add(restaurantDTO);
+        } else {
+            user.getFavorites().removeIf(favorite -> favorite.getId().equals(restaurantById.getId()));
+        }
 
 
-        if (userRequestDTO.getFavorites().contains(restaurantById))
-            userRequestDTO.getFavorites().remove(restaurantById);
-        else
-            userRequestDTO.getFavorites().add(restaurantById);
-
-        userService.save(userRequestDTO);
-        return restaurantById;
+        userService.save(user);
+        return restaurantDTO;
     }
 
     @Override
-    public RestaurantResponseDTO updateRestaurantStatus(Long id) throws Exception {
+    public Restaurant updateRestaurantStatus(Long id) throws Exception {
 
-        RestaurantResponseDTO restaurantById = findRestaurantById(id);
-        restaurantById.setOpen(!restaurantById.isOpen());
-        restaurantRepository.save(modelMapper.map( restaurantById, Restaurant.class));
-        return restaurantById;
+        Restaurant restaurant = findRestaurantById(id);
+        restaurant.setOpen(!restaurant.isOpen());
+        return restaurantRepository.save(restaurant);
     }
 
     @Override
-    public RestaurantResponseDTO removeFromFavorites(Long id, UserRequestDTO userRequestDTO) throws Exception {
-
-        // TODO: Implement this
-        return null;
+    public Restaurant removeFromFavorites(Long id, UserRequestDTO userRequestDTO) throws Exception {
+        throw new UnsupportedOperationException("TODO");
     }
 }

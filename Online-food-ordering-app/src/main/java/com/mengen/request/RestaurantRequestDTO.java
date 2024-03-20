@@ -9,16 +9,15 @@ import lombok.Setter;
 import java.util.List;
 
 @Data
-@Setter
-@Getter
+
 public class RestaurantRequestDTO{
-    Long id;
-    String name;
-    String description;
-    String cuisineType;
-    Address address;
-    ContactInformation contactInformation;
-    String openingHours;
-    boolean open;
-    List<String> images;
+    private Long id;
+    private String name;
+    private String description;
+    private String cuisineType;
+    private Address address;
+    private ContactInformation contactInformation;
+    private String openingHours;
+    private boolean open;
+    private List<String> images;
 }

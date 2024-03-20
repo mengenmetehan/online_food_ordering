@@ -47,20 +47,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    public User save(UserRequestDTO userRequestDTO)  {
-        User byEmail = userRepository.findByEmail(userRequestDTO.getEmail());
-        if (Objects.nonNull(byEmail)) {
-            byEmail.setFullName(userRequestDTO.getFullName());
-            byEmail.setRole(userRequestDTO.getRole());
-            byEmail.setAddresses(userRequestDTO.getAddresses());
-            List<RestaurantResponseDTO> favorites = userRequestDTO.getFavorites();
-            byEmail.setFavorites(favorites.stream()
-                    .map(restaurantResponseDTO -> modelMapper.map(restaurantResponseDTO, RestaurantDTO.class))
-                    .collect(Collectors.toList()));
-            byEmail.setOrders(userRequestDTO.getOrders());
-            return userRepository.save(byEmail);
-        }
-
-        return userRepository.save(modelMapper.map(userRequestDTO, User.class));
+    public User save(User user)  {
+        return userRepository.save(user);
     }
 }

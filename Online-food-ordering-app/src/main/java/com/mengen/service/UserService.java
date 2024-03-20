@@ -10,5 +10,5 @@ public interface UserService {
 
     User findUserByEmail(String email) throws UserNotFoundException;
 
-    User save(UserRequestDTO user);
+    User save(User user);
 }

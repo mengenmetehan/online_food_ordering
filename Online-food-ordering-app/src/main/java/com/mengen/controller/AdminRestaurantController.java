@@ -31,9 +31,9 @@ public class AdminRestaurantController {
     {
         User userByJwtToken = userService.findUserByJwtToken(jwt);
         //RestaurantResponseDTO restaurantResponseDTO = restaurantService.findByOwnerEmail(userRequestDTO.email());
-        RestaurantResponseDTO byOwnerId = restaurantService.findByOwnerId(userByJwtToken.getId());
+        Restaurant restaurant = restaurantService.getRestaurantByUserId(userByJwtToken.getId());
 
-        return new ResponseEntity<>(byOwnerId, HttpStatus.CREATED);
+        return new ResponseEntity<>(modelMapper.map(restaurant, RestaurantResponseDTO.class), HttpStatus.CREATED);
     }
 
 
@@ -44,7 +44,7 @@ public class AdminRestaurantController {
     {
         User userByJwtToken = userService.findUserByJwtToken(jwt);
         Restaurant restaurant = restaurantService.createRestaurant(restaurantRequestDTO,
-                modelMapper.map(userByJwtToken, UserRequestDTO.class));
+                userByJwtToken);
 
         return new ResponseEntity<>(modelMapper.map(restaurant, RestaurantResponseDTO.class), HttpStatus.CREATED);
     }
@@ -72,7 +72,7 @@ public class AdminRestaurantController {
                                                    @PathVariable Long id,
                                                    @RequestHeader("Authorization") String jwt) throws Exception
     {
-        RestaurantResponseDTO restaurantResponseDTO = restaurantService.updateRestaurantStatus(id);
-        return new ResponseEntity<>(restaurantResponseDTO, HttpStatus.OK);
+        Restaurant restaurant = restaurantService.updateRestaurantStatus(id);
+        return new ResponseEntity<>(modelMapper.map(restaurant, RestaurantResponseDTO.class), HttpStatus.OK);
     }
 }

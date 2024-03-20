@@ -4,6 +4,7 @@ import com.mengen.model.Restaurant;
 import com.mengen.model.User;
 import com.mengen.request.RestaurantRequestDTO;
 import com.mengen.request.UserRequestDTO;
+import com.mengen.response.RestaurantDTO;
 import com.mengen.response.RestaurantResponseDTO;
 import com.mengen.service.RestaurantService;
 import com.mengen.service.UserService;
@@ -29,38 +30,37 @@ public class RestaurantController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<RestaurantResponseDTO>> searchRestaurant(@RequestParam String keyword,
+    public ResponseEntity<List<Restaurant>> searchRestaurant(@RequestParam String keyword,
                                                                         @RequestHeader("Authorization") String jwt) throws Exception
     {
         //User userByJwtToken = userService.findUserByJwtToken(jwt);
-        List<RestaurantResponseDTO> restaurantResponseDTOS = restaurantService.searchRestaurants(keyword);
+        List<Restaurant> restaurantResponseDTOS = restaurantService.searchRestaurants(keyword);
 
         return new ResponseEntity<>(restaurantResponseDTOS, HttpStatus.OK);
     }
 
     @GetMapping()
-    public ResponseEntity<List<RestaurantResponseDTO>> getAllRestaurants(@RequestHeader("Authorization") String jwt) throws Exception
+    public ResponseEntity<List<Restaurant>> getAllRestaurants(@RequestHeader("Authorization") String jwt) throws Exception
     {
-        List<RestaurantResponseDTO> allRestaurants = restaurantService.getAllRestaurants();
+        List<Restaurant> allRestaurants = restaurantService.getAllRestaurants();
 
         return new ResponseEntity<>(allRestaurants, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-        public ResponseEntity<RestaurantResponseDTO> findRestaurantById(@PathVariable String id,
+        public ResponseEntity<Restaurant> findRestaurantById(@PathVariable String id,
                                                                               @RequestHeader("Authorization") String jwt) throws Exception
     {
-        RestaurantResponseDTO restaurantById = restaurantService.findRestaurantById(Long.valueOf(id));
-
+        Restaurant restaurantById = restaurantService.findRestaurantById(Long.valueOf(id));
         return new ResponseEntity<>(restaurantById, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/add-favorites")
-    public ResponseEntity<RestaurantResponseDTO> addToFavorites(@PathVariable String id,
-                                                                    @RequestHeader("Authorization") String jwt) throws Exception
+    public ResponseEntity<RestaurantDTO> addToFavorites(@PathVariable String id,
+                                                        @RequestHeader("Authorization") String jwt) throws Exception
     {
         User userByJwtToken = userService.findUserByJwtToken(jwt);
-        RestaurantResponseDTO restaurant = restaurantService.addToFavorites(Long.valueOf(id), modelMapper.map(userByJwtToken, UserRequestDTO.class));
+        RestaurantDTO restaurant = restaurantService.addToFavorites(Long.valueOf(id), userByJwtToken);
 
         return new ResponseEntity<>(restaurant, HttpStatus.OK);
     }
