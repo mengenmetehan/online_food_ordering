@@ -6,17 +6,12 @@ import com.mengen.model.Food;
 import com.mengen.model.User;
 import com.mengen.repository.CartItemRepository;
 import com.mengen.repository.CartRepository;
-import com.mengen.repository.FoodRepository;
 import com.mengen.request.AddCartItemRequestDTO;
 import com.mengen.service.CartService;
 import com.mengen.service.FoodService;
 import com.mengen.service.UserService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -71,26 +66,37 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart removeItemFromCart(Long cartItemId, String jwt) throws Exception {
-        throw new UnsupportedOperationException();
+        User userByJwtToken = userService.findUserByJwtToken(jwt);
+        Cart cartByCurrentUser = cartRepository.findByCustomerId(userByJwtToken.getId());
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                        .orElseThrow(() -> new Exception("Cart item not found"));
+
+        cartByCurrentUser.getItems().remove(cartItem);
+        return cartRepository.save(cartByCurrentUser);
     }
 
     @Override
     public Long calculateCartTotals(Cart cart) {
-        throw new UnsupportedOperationException();
+        return cart.getItems().stream().mapToLong(CartItem::getTotalPrice).reduce(0, Long::sum);
     }
 
     @Override
     public Cart findCartById(Long id) throws Exception {
-        throw new UnsupportedOperationException();
+        return cartRepository.findById(id).orElseThrow(() -> new Exception("Cart item not found"));
     }
 
     @Override
     public Cart findCartByUserId(Long userId) throws Exception {
-        throw new UnsupportedOperationException();
+        Cart cart = cartRepository.findByCustomerId(userId);
+        cart.setTotal(calculateCartTotals(cart));
+        return cart;
     }
 
     @Override
-    public Cart clearCartByUserId(Long userId) throws Exception {
-        throw new UnsupportedOperationException();
+    public Cart clearCart(Long userId) throws Exception {
+        Cart cart = cartRepository.findByCustomerId(userId);
+        cart.getItems().clear();
+        return cartRepository.save(cart);
     }
 }
