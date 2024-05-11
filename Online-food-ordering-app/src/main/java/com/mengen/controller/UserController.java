@@ -2,6 +2,7 @@ package com.mengen.controller;
 
 import com.mengen.model.User;
 import com.mengen.service.UserService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -19,6 +20,7 @@ public class UserController {
     }
 
     @RequestMapping("/profile")
+    @Cacheable(value = "user", key = "#jwt", unless = "#result == null") // cache the result of this method
     public ResponseEntity<User> findUserByJwtToken(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         return new ResponseEntity<>(user, HttpStatus.OK);

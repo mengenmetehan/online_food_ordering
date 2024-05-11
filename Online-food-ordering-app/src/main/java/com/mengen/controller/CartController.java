@@ -6,6 +6,9 @@ import com.mengen.model.User;
 import com.mengen.request.AddCartItemRequestDTO;
 import com.mengen.request.UpdateCartRequestDTO;
 import com.mengen.service.UserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +26,7 @@ public class CartController {
     }
 
     @PutMapping("/cart/add")
+    @Cacheable(value = "cart", key = "#request.productId", unless = "#result == null")
     public ResponseEntity<CartItem> addItemToCart(@RequestBody AddCartItemRequestDTO request,
                                                   @RequestHeader("Authorization") String jwt) throws Exception {
         CartItem cartItem = cartService.addItemToCart(request, jwt);
@@ -31,6 +35,7 @@ public class CartController {
 
 
     @PutMapping("/cart-item/update")
+    @CachePut(value = "cart", key = "#request.cartItemId", unless = "#result == null")
     public ResponseEntity<CartItem> updateCartItemQuantity(@RequestBody UpdateCartRequestDTO request,
                                                            @RequestHeader("Authorization") String jwt) throws Exception {
         CartItem cartItem = cartService.updateCartItemQuantity(request.getCartItemId(), request.getQuantity());
@@ -45,6 +50,7 @@ public class CartController {
     }
 
     @PutMapping("/cart/clear")
+    @CacheEvict(value = "cart", allEntries = true)
     public ResponseEntity<Cart> clearCart( @RequestHeader("Authorization") String jwt) throws Exception {
         User userByJwtToken = userService.findUserByJwtToken(jwt);
         Cart cart = cartService.clearCart(userByJwtToken.getId());

@@ -15,6 +15,7 @@ import com.mengen.service.RestaurantService;
 import com.mengen.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -85,6 +86,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
 
     @Override
+    @CachePut(cacheNames = "restaurants", key = "'updateRestaurant' + #id", unless = "#result == null")
     public Restaurant updateRestaurant(Long id, RestaurantRequestDTO restaurantDTO) throws Exception {
         Restaurant restaurant = findRestaurantById(id);
 

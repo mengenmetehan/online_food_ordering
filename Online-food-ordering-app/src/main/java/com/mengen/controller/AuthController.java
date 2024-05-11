@@ -9,6 +9,7 @@ import com.mengen.request.LoginRequestDTO;
 import com.mengen.response.AuthResponseDTO;
 import com.mengen.security.JwtProvider;
 import com.mengen.service.impl.CustomerUserDetailsService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -46,6 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @CacheEvict(value = "user", allEntries = true)
     public ResponseEntity<AuthResponseDTO> createUserHandler(@RequestBody User user) throws Exception {
         User isEmailExist = userRepository.findByEmail(user.getEmail());
 

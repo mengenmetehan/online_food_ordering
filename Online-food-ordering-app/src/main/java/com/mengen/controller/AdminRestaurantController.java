@@ -8,6 +8,7 @@ import com.mengen.response.RestaurantResponseDTO;
 import com.mengen.service.RestaurantService;
 import com.mengen.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class AdminRestaurantController {
 
 
     @PostMapping()
+    @Cacheable(value = "restaurant", key = "#restaurantRequestDTO.id", unless = "#result == null")
     public ResponseEntity<RestaurantResponseDTO> createRestaurant(@RequestBody RestaurantRequestDTO restaurantRequestDTO,
                                                                   //@RequestBody UserRequestDTO userRequestDTO,
                                                                   @RequestHeader("Authorization") String jwt) throws Exception
