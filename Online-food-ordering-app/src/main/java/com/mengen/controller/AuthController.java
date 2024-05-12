@@ -47,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @CacheEvict(value = "user", allEntries = true)
+    //@CacheEvict(value = "user", allEntries = true)
     public ResponseEntity<AuthResponseDTO> createUserHandler(@RequestBody User user) throws Exception {
         User isEmailExist = userRepository.findByEmail(user.getEmail());
 

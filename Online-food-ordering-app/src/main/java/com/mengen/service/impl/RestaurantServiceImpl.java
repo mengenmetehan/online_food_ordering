@@ -86,7 +86,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
 
     @Override
-    @CachePut(cacheNames = "restaurants", key = "'updateRestaurant' + #id", unless = "#result == null")
+    //@CachePut(cacheNames = "restaurants", key = "'updateRestaurant' + #id", unless = "#result == null")
     public Restaurant updateRestaurant(Long id, RestaurantRequestDTO restaurantDTO) throws Exception {
         Restaurant restaurant = findRestaurantById(id);
 

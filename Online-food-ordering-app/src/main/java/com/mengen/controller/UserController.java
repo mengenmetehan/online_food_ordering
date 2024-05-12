@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @RequestMapping("/profile")
-    @Cacheable(value = "user", key = "#jwt", unless = "#result == null") // cache the result of this method
+    //@Cacheable(value = "user", key = "#jwt", unless = "#result == null") // cache the result of this method
     public ResponseEntity<User> findUserByJwtToken(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         return new ResponseEntity<>(user, HttpStatus.OK);
